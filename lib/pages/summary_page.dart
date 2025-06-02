@@ -108,7 +108,7 @@ class _SummaryPageState extends State<SummaryPage> {
         content: TextField(
           controller: controller,
           maxLines: 3,
-          autofocus: true, // ✅ 한국어 입력 활성화
+          autofocus: true, 
           keyboardType: TextInputType.text,
           textInputAction: TextInputAction.done,
           decoration: const InputDecoration(hintText: '메모를 입력하세요'),
