@@ -4,6 +4,7 @@ import 'package:scalendar_app/models/notice.dart';
 import 'package:scalendar_app/services/gemini_service.dart';
 import 'package:scalendar_app/services/web_scraper_service.dart';
 import 'package:scalendar_app/services/notice_data.dart';
+import 'package:scalendar_app/services/hidden_notices.dart'; // ✅ 추가
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -126,14 +127,12 @@ class _SummaryPageState extends State<SummaryPage> {
     );
   }
 
-  void _hideNotice() {
-    setState(() {
-      widget.notice.isHidden = true;
-    });
+  void _hideNotice() async {
+    await HiddenNotices.add(widget.notice); // ✅ 실제 숨김 처리
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('이 공지를 숨겼습니다.')),
     );
-    Navigator.pop(context);
+    Navigator.pop(context); // 이전 화면으로 돌아가기
   }
 
   @override
@@ -155,7 +154,7 @@ class _SummaryPageState extends State<SummaryPage> {
             ),
             onPressed: () async {
               await FavoriteNotices.toggle(widget.notice);
-              setState(() {}); // 별 아이콘 즉시 반영
+              setState(() {}); // 상태 갱신
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
