@@ -1,3 +1,4 @@
+// notice_model.dart
 import 'package:flutter/material.dart';
 import '../models/notice.dart';
 import '../pages/summary_page.dart';
@@ -17,6 +18,9 @@ class NoticeBottomSheet extends StatelessWidget {
     final formatted =
         '${date.year}년 ${date.month.toString().padLeft(2, '0')}월 ${date.day.toString().padLeft(2, '0')}일'
         ' (${['일', '월', '화', '수', '목', '금', '토'][date.weekday % 7]})';
+
+    // ✅ 숨기기 처리된 공지 제외
+    final visibleNotices = notices.where((n) => !n.isHidden).toList();
 
     return DraggableScrollableSheet(
       expand: false,
@@ -53,21 +57,16 @@ class NoticeBottomSheet extends StatelessWidget {
                 Expanded(
                   child: ListView.builder(
                     controller: controller,
-                    itemCount: notices.length,
+                    itemCount: visibleNotices.length,
                     itemBuilder: (_, index) {
-                      final n = notices[index];
+                      final n = visibleNotices[index];
                       return GestureDetector(
                         onTap: () {
                           if (n.url != null && n.url!.isNotEmpty) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder:
-                                    (_) => SummaryPage(
-                                      initialUrl: n.url!,
-                                      noticeTitle: n.title,
-                                      noticeColor: n.color,
-                                    ),
+                                builder: (_) => SummaryPage(notice: n),
                               ),
                             );
                           }
