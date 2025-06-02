@@ -135,16 +135,3 @@ class NoticeData {
     return all;
   }
 }
-
-/// 숨긴 공지 관리 클래스
-class HiddenNotices {
-  /// 숨긴 공지 리스트 (관심 공지 중 isHidden == true인 것만)
-  static List<Notice> get all =>
-      FavoriteNotices.favorites.where((n) => n.isHidden).toList();
-
-  /// 숨김 해제 (복원)
-  static Future<void> unhide(Notice notice) async {
-    notice.isHidden = false;
-    await FavoriteNotices._saveFavorites(); // 저장 반영
-  }
-}
