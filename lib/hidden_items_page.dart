@@ -1,13 +1,32 @@
 // hidden_items_page.dart
 import 'package:flutter/material.dart';
+import 'models/notice.dart';
+import 'services/notice_data.dart';
 
-class HiddenItemsPage extends StatelessWidget {
+class HiddenItemsPage extends StatefulWidget {
   const HiddenItemsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final hiddenItems = ['숨긴 공지 1', '숨긴 공지 2'];
+  State<HiddenItemsPage> createState() => _HiddenItemsPageState();
+}
 
+class _HiddenItemsPageState extends State<HiddenItemsPage> {
+  List<Notice> hiddenItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadHiddenItems();
+  }
+
+  void _loadHiddenItems() {
+    setState(() {
+      hiddenItems = HiddenNotices.all;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('숨기기 편집'),
@@ -15,32 +34,39 @@ class HiddenItemsPage extends StatelessWidget {
         foregroundColor: Colors.black,
         elevation: 1,
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: hiddenItems.length,
-        separatorBuilder: (context, index) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(6),
+      body: hiddenItems.isEmpty
+          ? const Center(child: Text('숨긴 공지가 없습니다.'))
+          : ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: hiddenItems.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                final notice = hiddenItems[index];
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(child: Text(notice.title)),
+                      IconButton(
+                        icon: const Icon(Icons.undo, color: Colors.green),
+                        onPressed: () async {
+                          await HiddenNotices.unhide(notice);
+                          _loadHiddenItems();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('공지를 복원했습니다.')),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(hiddenItems[index]),
-                IconButton(
-                  icon: const Icon(Icons.remove_circle, color: Colors.red),
-                  onPressed: () {
-                    // 삭제 기능 추가 가능
-                  },
-                ),
-              ],
-            ),
-          );
-        },
-      ),
     );
   }
 }
