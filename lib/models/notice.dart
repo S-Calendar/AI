@@ -40,4 +40,3 @@ class Notice {
   @override
   int get hashCode => Object.hash(title, startDate);
 }
-
