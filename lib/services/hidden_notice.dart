@@ -1,4 +1,3 @@
-// services/hidden_notice.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,6 +34,12 @@ class HiddenNotices {
   static Future<void> remove(Notice notice) async {
     _hidden.removeWhere((n) => _isSameNotice(n, notice));
     await _save();
+  }
+
+  /// 숨긴 공지를 복원 (isHidden false + 리스트에서 제거)
+  static Future<void> unhide(Notice notice) async {
+    notice.isHidden = false;
+    await remove(notice);
   }
 
   /// 숨긴 공지에 포함되어 있는지 확인
