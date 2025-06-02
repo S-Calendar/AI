@@ -2,29 +2,85 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/notice.dart';
 
-/// 관심 공지 전역 저장소
+/// 관심 공지 전역 저장소 (SharedPreferences 연동)
 class FavoriteNotices {
   static final List<Notice> _favorites = [];
 
   static List<Notice> get favorites => List.unmodifiable(_favorites);
 
-  static void add(Notice notice) {
+  /// 초기 로드
+  static Future<void> loadFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = prefs.getStringList('favorite_notices') ?? [];
+
+    _favorites.clear();
+    _favorites.addAll(data.map((jsonStr) {
+      final map = json.decode(jsonStr);
+      return _noticeFromMap(map);
+    }));
+  }
+
+  /// 저장
+  static Future<void> _saveFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = _favorites.map((n) => json.encode(_noticeToMap(n))).toList();
+    await prefs.setStringList('favorite_notices', data);
+  }
+
+  /// 추가
+  static Future<void> add(Notice notice) async {
     if (!_favorites.contains(notice)) {
       notice.isFavorite = true;
       _favorites.add(notice);
+      await _saveFavorites();
     }
   }
 
-  static void remove(Notice notice) {
+  /// 제거
+  static Future<void> remove(Notice notice) async {
     notice.isFavorite = false;
-    _favorites.remove(notice);
+    _favorites.removeWhere((n) => n.title == notice.title && n.startDate == notice.startDate);
+    await _saveFavorites();
+  }
+
+  /// 토글
+  static Future<void> toggle(Notice notice) async {
+    if (isFavorite(notice)) {
+      await remove(notice);
+    } else {
+      await add(notice);
+    }
   }
 
   static bool isFavorite(Notice notice) {
-    return _favorites.contains(notice);
+    return _favorites.any((n) => n.title == notice.title && n.startDate == notice.startDate);
   }
+
+  /// Notice → Map
+  static Map<String, dynamic> _noticeToMap(Notice n) => {
+        'title': n.title,
+        'startDate': n.startDate.toIso8601String(),
+        'endDate': n.endDate.toIso8601String(),
+        'color': n.color.value,
+        'url': n.url,
+        'memo': n.memo,
+        'isHidden': n.isHidden,
+      };
+
+  /// Map → Notice
+  static Notice _noticeFromMap(Map<String, dynamic> m) => Notice(
+        title: m['title'],
+        startDate: DateTime.parse(m['startDate']),
+        endDate: DateTime.parse(m['endDate']),
+        color: Color(m['color']),
+        url: m['url'],
+        memo: m['memo'],
+        isHidden: m['isHidden'] ?? false,
+        isFavorite: true,
+      );
 }
 
 /// JSON 파일에서 Notice 목록 불러오기
@@ -34,7 +90,6 @@ class NoticeData {
       'assets/임시2_추가_output.json',
     );
     final Map<String, dynamic> jsonMap = json.decode(jsonString);
-
     List<Notice> all = [];
 
     jsonMap.forEach((category, notices) {
@@ -47,20 +102,19 @@ class NoticeData {
 
         try {
           final start = DateTime.parse(dates[0].replaceAll('.', '-'));
-          final end =
-              (dates.length > 1)
-                  ? DateTime.parse(dates[1].replaceAll('.', '-'))
-                  : start;
+          final end = (dates.length > 1)
+              ? DateTime.parse(dates[1].replaceAll('.', '-'))
+              : start;
 
           Color color;
           if (category == '학사공지') {
-            color = const Color(0x83ABC9FF); // 50% 투명도
+            color = const Color(0x83ABC9FF);
           } else if (category == 'ai학과공지') {
             color = const Color(0x83FFABAB);
           } else if (category == '취업공지') {
             color = const Color(0x83A5FAA5);
           } else {
-            color = const Color.fromARGB(131, 171, 200, 255); // 기본 fallback
+            color = const Color.fromARGB(131, 171, 200, 255);
           }
 
           all.add(
@@ -69,11 +123,11 @@ class NoticeData {
               startDate: start,
               endDate: end,
               color: color,
-              isHidden: false, // 기본 숨김 상태 아님
+              isHidden: false,
             ),
           );
         } catch (_) {
-          continue; // 날짜 파싱 실패 → 건너뜀
+          continue;
         }
       }
     });
