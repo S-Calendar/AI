@@ -1,5 +1,6 @@
-// hidden_notices.dart
+// services/hidden_notices.dart
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/notice.dart';
 
@@ -30,6 +31,11 @@ class HiddenNotices {
       _hidden.add(notice);
       await _saveHidden();
     }
+  }
+
+  static Future<void> remove(Notice notice) async {
+    _hidden.removeWhere((n) => n.title == notice.title && n.startDate == notice.startDate);
+    await _saveHidden();
   }
 
   static bool contains(Notice notice) {
