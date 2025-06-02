@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:scalendar_app/models/notice.dart';
 import 'package:scalendar_app/services/gemini_service.dart';
 import 'package:scalendar_app/services/web_scraper_service.dart';
+import 'package:scalendar_app/services/notice_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -144,6 +145,30 @@ class _SummaryPageState extends State<SummaryPage> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              FavoriteNotices.contains(widget.notice)
+                  ? Icons.star
+                  : Icons.star_border,
+              color: Colors.amber,
+            ),
+            onPressed: () async {
+              await FavoriteNotices.toggle(widget.notice);
+              setState(() {}); // 별 아이콘 즉시 반영
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    FavoriteNotices.contains(widget.notice)
+                        ? '관심 공지에 추가되었습니다.'
+                        : '관심 공지에서 제거되었습니다.',
+                  ),
+                  duration: const Duration(seconds: 1),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
