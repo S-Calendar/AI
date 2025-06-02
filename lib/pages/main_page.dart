@@ -1,4 +1,4 @@
-// pages/main_page.dart
+// main_page.dart
 import 'package:flutter/material.dart';
 import '../widgets/custom_calendar.dart';
 import '../models/notice.dart';
@@ -31,13 +31,24 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<void> _loadNotices() async {
+    await FavoriteNotices.loadFavorites(); 
     final notices = await NoticeData.loadNoticesFromJson(context);
+
+    for (final n in notices) {
+      final matched = FavoriteNotices.favorites.firstWhere(
+        (f) => f.title == n.title && f.startDate == n.startDate,
+        orElse: () => n,
+      );
+      n.isHidden = matched.isHidden;
+      n.memo = matched.memo;
+      n.isFavorite = matched.isFavorite;
+    }
+
     setState(() {
-      allNotices = notices.where((n) => !n.isHidden).toList(); // 숨김 공지 제외
+      allNotices = notices.where((n) => !n.isHidden).toList();
     });
   }
 
-  // 관심 목록 페이지 등에서 돌아올 때 새로 고침 용
   Future<void> _navigateAndRefresh(String routeName) async {
     await Navigator.pushNamed(context, routeName);
     await _loadNotices();
@@ -121,3 +132,4 @@ class _MainPageState extends State<MainPage> {
     );
   }
 }
+
