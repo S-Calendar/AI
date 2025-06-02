@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/notice.dart';
-import '../utils/notice_data.dart';
+import 'package:AI/services/notice_data.dart';
 import 'summary_page.dart';
 
 class SearchPage extends StatefulWidget {
@@ -22,7 +22,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future<void> _loadNotices() async {
-    final notices = await NoticeData.loadNoticesFromAssets();
+    final notices = await NoticeData.loadNoticesFromJson(context);
     setState(() {
       _allNotices = notices;
       _filteredNotices = notices;
@@ -37,11 +37,11 @@ class _SearchPageState extends State<SearchPage> {
     });
   }
 
-  void _navigateToSummary(String url) {
+  void _navigateToSummary(Notice notice) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SummaryPage(url: url),
+        builder: (context) => SummaryPage(notice: notice),
       ),
     );
   }
@@ -70,9 +70,9 @@ class _SearchPageState extends State<SearchPage> {
                   final notice = _filteredNotices[index];
                   return ListTile(
                     title: Text(notice.title),
-                    subtitle: Text(notice.author ?? ''),
+                  //subtitle: Text(notice.author ?? ''), // ❌ 오류나는 줄
                     onTap: notice.url != null
-                        ? () => _navigateToSummary(notice.url!)
+                        ? () => _navigateToSummary(notice)
                         : null,
                   );
                 },
@@ -81,6 +81,9 @@ class _SearchPageState extends State<SearchPage> {
           ],
         ),
       ),
+    );
+  }
+}
     );
   }
 }
