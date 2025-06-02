@@ -12,6 +12,12 @@ class FavoriteNoticesPage extends StatefulWidget {
 
 class _FavoriteNoticesPageState extends State<FavoriteNoticesPage> {
   @override
+  void initState() {
+    super.initState();
+    FavoriteNotices.loadFavorites().then((_) => setState(() {}));
+  }
+
+  @override
   Widget build(BuildContext context) {
     final List<Notice> favoriteItems = FavoriteNotices.favorites;
 
@@ -42,10 +48,9 @@ class _FavoriteNoticesPageState extends State<FavoriteNoticesPage> {
                       Expanded(child: Text(notice.title)),
                       IconButton(
                         icon: const Icon(Icons.remove_circle, color: Colors.red),
-                        onPressed: () {
-                          setState(() {
-                            FavoriteNotices.remove(notice);
-                          });
+                        onPressed: () async {
+                          await FavoriteNotices.remove(notice);
+                          setState(() {});
                         },
                       ),
                     ],
