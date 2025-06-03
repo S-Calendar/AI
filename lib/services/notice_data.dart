@@ -8,9 +8,11 @@ import '../models/notice.dart';
 /// 관심 공지 전역 저장소 (SharedPreferences 연동)
 class FavoriteNotices {
   static final List<Notice> _favorites = [];
-
+  
   static List<Notice> get favorites => List.unmodifiable(_favorites);
 
+  static bool contains(Notice notice) => isFavorite(notice);
+  
   /// 초기 로드
   static Future<void> loadFavorites() async {
     final prefs = await SharedPreferences.getInstance();
