@@ -4,8 +4,8 @@ import 'package:scalendar_app/models/notice.dart';
 import 'package:scalendar_app/services/gemini_service.dart';
 import 'package:scalendar_app/services/web_scraper_service.dart';
 import 'package:scalendar_app/services/notice_data.dart';
-import 'package:scalendar_app/services/hidden_notices.dart'; 
-import 'package:scalendar_app/services/favorite_notices.dart'; // ✅ 추가
+import 'package:scalendar_app/services/hidden_notice.dart'; 
+import 'package:scalendar_app/services/favorite_notice.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
