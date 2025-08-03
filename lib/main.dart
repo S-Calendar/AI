@@ -6,15 +6,16 @@ import 'pages/splash_page.dart';
 import 'pages/start_page.dart';
 import 'pages/main_page.dart';
 import 'pages/search_page.dart';
-import 'settings_page.dart';
-import 'favorite_notices_page.dart';
-import 'hidden_items_page.dart';
+import 'pages/settings_page.dart';
+import 'pages/favorite_notices_page.dart';
+import 'pages/hidden_items_page.dart';
+import 'pages/year_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
   // await Firebase.initializeApp();
-  runApp(const MyApp());
+  runApp(const MyApp()); 
 }
 
 class MyApp extends StatelessWidget {
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
         '/settings': (context) => const SettingsPage(),
         '/favorite': (context) => const FavoriteNoticesPage(),
         '/hidden': (context) => const HiddenItemsPage(),        
+        '/year_page': (context) => const YearCalendarPage(),
       },
     );
   }
