@@ -18,6 +18,7 @@ class _MainPageState extends State<MainPage> {
   late int _selectedIndex;
   late int _todayIndex;
   late List<Notice> allNotices = [];
+  bool _initializedWithArgs = false;
 
   @override
   void initState() {
@@ -31,7 +32,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<void> _loadNotices() async {
-    await FavoriteNotices.loadFavorites(); 
+    await FavoriteNotices.loadFavorites();
     final notices = await NoticeData.loadNoticesFromJson(context);
 
     for (final n in notices) {
@@ -56,6 +57,18 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)?.settings.arguments as Map?;
+    if (!_initializedWithArgs && args != null) {
+      final int? targetYear = args['year'];
+      final int? targetMonth = args['month'];
+      if (targetYear != null && targetMonth != null) {
+        final int targetIndex = (targetYear - baseYear) * 12 + (targetMonth - 1);
+        _selectedIndex = targetIndex;
+        _pageController.jumpToPage(targetIndex);
+      }
+      _initializedWithArgs = true;
+    }
+
     final int year = baseYear + (_selectedIndex ~/ 12);
     final int month = (_selectedIndex % 12) + 1;
 
@@ -83,11 +96,16 @@ class _MainPageState extends State<MainPage> {
                     child: Image.asset('assets/today_icon.png', width: 70),
                   ),
                   const SizedBox(width: 4),
-                  Text(
-                    '$month월',
-                    style: const TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(context, '/year_page');
+                    },
+                    child: Text(
+                      '$month월',
+                      style: const TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 4),
@@ -132,4 +150,3 @@ class _MainPageState extends State<MainPage> {
     );
   }
 }
-
