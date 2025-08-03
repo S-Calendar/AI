@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'hidden_items_page.dart'; // ← 동일 폴더 내
+import 'hidden_items_page.dart'; 
 import 'favorite_notices_page.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -21,8 +21,18 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> settingsItems = [
-      {'label': '년간 일정 보기'},
-      {'label': '월간 일정 보기'},
+      {
+        'label': '년간 일정 보기',
+        'onTap': () {
+          Navigator.pushNamed(context, '/year_page');
+        }        
+      },
+      {
+        'label': '월간 일정 보기',
+        'onTap': () {
+          Navigator.pushNamed(context, '/main_page');
+        }
+      },
       {
         'label': '숨기기 편집',
         'onTap': () {
